@@ -16,6 +16,7 @@
 // Game of Death
 // Cells have a lifetime
 // When they reach the end of their lifetime, they will attempt to clone themselves
+
 // The heat death of the universe is inevitable
 
 typedef union { 
