@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
         for (uint32_t y = 0; y < grid_y; y++){
             if (rng_next8(&rng) < 30){
                 CELL_AT(x, y).flip_on = 1;
-                CELL_AT(x, y).color = (x << 16) | (y << 8) | min(rng_next8(&rng), 100) ;
+                CELL_AT(x, y).color = (x << 16) | (y << 8) | min(rng_next8(&rng), 100)/2;
             }
         }
     
