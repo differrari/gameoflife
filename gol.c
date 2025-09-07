@@ -8,6 +8,11 @@
 // 3. An empty cell with 3 neighbors comes to life as if by reproduction
 // 4. A cell with 2 or 3 neighbors lives on to the next generation
 
+// Evolution
+// Cells start with a color based off their coordinates with a random element
+// New born cells inherit the color of their 3 neighbors and a slight variation
+// Cells become brighter as they evolve
+
 typedef union { 
     struct {
         uint32_t color: 24;
