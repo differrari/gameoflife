@@ -13,10 +13,15 @@
 // New born cells inherit the color of their 3 neighbors and a slight variation
 // Cells become brighter as they evolve
 
+// Game of Death
+// Cells have a lifetime
+// When they reach the end of their lifetime, they will attempt to clone themselves
+// The heat death of the universe is inevitable
+
 typedef union { 
     struct {
         uint32_t color: 24;
-        uint32_t rsvd: 5;
+        uint32_t lifetime: 5;
         uint32_t flip_on: 1;
         uint32_t flip_off: 1;
         uint32_t alive: 1;
@@ -65,11 +70,14 @@ void check_neighbors(){
             }
             else if (!CELL_AT(x, y).alive && neighbors == 3){
                 CELL_AT(x, y).color = (r << 16) | (g << 8) | (b << 0);
+                CELL_AT(x, y).lifetime = rng_next8(&rng) & 0x1F;
                 CELL_AT(x, y).flip_on = 1;
             }
         }
     }
 }
+
+#define BIRTH_COND (rng_next8(&rng) < 30)
 
 int main(int argc, char* argv[]){
     draw_ctx ctx = {};
@@ -80,8 +88,9 @@ int main(int argc, char* argv[]){
     rng_seed(&rng, get_time());
     for (uint32_t x = 0; x < grid_x; x++)
         for (uint32_t y = 0; y < grid_y; y++){
-            if (rng_next8(&rng) < 30){
+            if (BIRTH_COND){
                 CELL_AT(x, y).flip_on = 1;
+                CELL_AT(x, y).lifetime = rng_next8(&rng) & 0x1F;
                 CELL_AT(x, y).color = (x << 16) | (y << 8) | min(rng_next8(&rng), 100)/2;
             }
         }
@@ -106,11 +115,24 @@ int main(int argc, char* argv[]){
                         fb_fill_rect(&ctx, x * SCALE, y * SCALE, SCALE, SCALE, (0xFF << 24) | cell.color);
                         CELL_AT(x, y).flip_on = 0;
                         CELL_AT(x, y).alive = 1;
-                    }
-                    if (cell.flip_off){
+                    } else if (cell.flip_off){
                         fb_fill_rect(&ctx, x * SCALE, y * SCALE, SCALE, SCALE, BG_COLOR);
                         CELL_AT(x, y).flip_off = 0;
                         CELL_AT(x, y).alive = 0;
+                    } else if (cell.alive){
+                        if (CELL_AT(x, y).lifetime == 0){
+                            CELL_AT(x, y).flip_off = 1;
+                            for (int nx = -1; nx <= 1; nx++){
+                                for (int ny = -1; ny <= 1; ny++){
+                                    if ((nx + x) < 0 || (ny + y) < 0 || (nx + x) > grid_x || (ny + y) > grid_y || (ny == 0 && nx == 0) || !BIRTH_COND) continue;
+                                    if (!CELL_AT((x + nx), (y + ny)).alive){
+                                        CELL_AT((x + nx), (y + ny)).flip_on = 1;
+                                        CELL_AT((x + nx), (y + ny)).color = CELL_AT(x, y).color;
+                                        CELL_AT((x + nx), (y + ny)).lifetime = rng_next8(&rng) & 0x1F;
+                                    }
+                                }
+                            }
+                        } else CELL_AT(x, y).lifetime--;
                     }
                 }
             }

@@ -8,22 +8,22 @@ LD         := $(ARCH)-ld
 STDINC ?= ../os/shared/
 STDLIB ?= ../os/shared/libshared.a
 CFLAGS ?= -ffreestanding -nostdlib -std=c99 -I$(STDINC) -O0
-OUT ?= gol.elf
+OUT ?= god.elf
 FS_PATH ?= ../os/fs/redos/user/$(OUT)
 
 .PHONY: dump
 
 all:
-	$(CC) $(CFLAGS) -c gol.c -o gol.o
-	$(LD) -T linker.ld -o $(OUT) gol.o $(STDLIB)
+	$(CC) $(CFLAGS) -c god.c -o god.o
+	$(LD) -T linker.ld -o $(OUT) god.o $(STDLIB)
 
 run: all
 	cp $(OUT) $(FS_PATH)
 	make -C ../os run
 
 clean: 	
-	rm gol.o
+	rm god.o
 	rm $(OUT)
 
 dump:
-	$(ARCH)-objdump -D gol.elf > dump
+	$(ARCH)-objdump -D god.elf > dump
