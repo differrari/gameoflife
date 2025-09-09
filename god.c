@@ -108,7 +108,6 @@ int main(int argc, char* argv[]){
             if (kp.keys[0] == KEY_ESC) halt(0);
         }
         if (!paused || step){
-            ctx.full_redraw = true;
             for (int x = 0; x < grid_x; x++){
                 for (int y = 0; y < grid_y; y++){
                     cell cell = CELL_AT(x, y);
