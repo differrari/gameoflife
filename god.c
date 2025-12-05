@@ -36,7 +36,7 @@ bool paused = false;
 rng_t rng = {};
 
 #define SCALE 10
-#define BG_COLOR 0x0
+#define BG_COLOR 0xFF000000
 
 #define CELL_AT(x,y) grid[(y * grid_x) + x]
 
@@ -97,7 +97,6 @@ int main(int argc, char* argv[]){
                 CELL_AT(x, y).color = (x << 16) | (y << 8) | min(rng_next8(&rng), 100)/2;
             }
         }
-    
     fb_clear(&ctx, BG_COLOR);
     commit_draw_ctx(&ctx);
     int generation = 0;
@@ -107,9 +106,13 @@ int main(int argc, char* argv[]){
         if (read_key(&kp)){
             if (kp.keys[0] == KEY_SPACE) paused = !paused;
             if (kp.keys[0] == KEY_ENTER || kp.keys[0] == KEY_KPENTER) step = true;
-            if (kp.keys[0] == KEY_ESC) halt(0);
+            if (kp.keys[0] == KEY_ESC){
+                destroy_draw_ctx(&ctx);
+                halt(0);
+            }
         }
         if (!paused || step){
+            begin_drawing(&ctx);
             for (int x = 0; x < grid_x; x++){
                 for (int y = 0; y < grid_y; y++){
                     cell cell = CELL_AT(x, y);

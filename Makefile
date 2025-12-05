@@ -49,8 +49,9 @@ clean:
 	rm -r $(EXEC_NAME).red
 
 cross:
-	$(MAKE) ARCH= INCLUDES=../redxlib CROSSLIB=../redxlib/redxlib.a
-	gdb -ex run $(OUT)
+	$(MAKE) ARCH= INCLUDES=../redxlib CROSSLIB=../redxlib/redxlib.a\ ../raylib/src/libraylib.a\ -lm
+	# gdb -ex run $(OUT)
+	$(OUT)
 
 dump:
 	$(DUMP) -D $(OUT) > dump
