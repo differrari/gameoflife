@@ -84,6 +84,8 @@ void check_neighbors(){
 
 int main(int argc, char* argv[]){
     draw_ctx ctx = {};
+    ctx.width = 1920;
+    ctx.height = 1080;
     request_draw_ctx(&ctx);
     grid_x = (int)min(100, max(10, ctx.width/SCALE));
     grid_y = (int)min(100, max(10, ctx.height/SCALE));
@@ -100,7 +102,7 @@ int main(int argc, char* argv[]){
     fb_clear(&ctx, BG_COLOR);
     commit_draw_ctx(&ctx);
     int generation = 0;
-    while (true){
+    while (!should_close_ctx()){
         bool step = false;
         keypress kp = {};
         if (read_key(&kp)){
