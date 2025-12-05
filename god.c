@@ -58,9 +58,11 @@ void check_neighbors(){
                     }
                 }
             }
-            r /= neighbors;
-            g /= neighbors;
-            b /= neighbors;
+            if (neighbors){
+                r /= neighbors;
+                g /= neighbors;
+                b /= neighbors;
+            }
 
             r &= 0xFF;
             g &= 0xFF;

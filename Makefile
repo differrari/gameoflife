@@ -2,41 +2,55 @@ ARCH       ?= aarch64-none-elf-
 CC         := $(ARCH)gcc
 CXX        := $(ARCH)g++
 LD         := $(ARCH)ld
-DUMP	   := $(ARCH)dump
+DUMP	   := $(ARCH)objdump
 
 STDINC ?= ../os/shared/
 STDLIB ?= ../os/shared/libshared.a
-CFLAGS ?= -std=c99 -I$(STDINC) -O0 -I$(INCLUDES)
-OUT ?= god.elf
-FS_PATH ?= ../os/fs/redos/user/$(OUT)
+CFLAGS ?= -std=c99 -g -I$(STDINC) -O0
+EXEC_NAME ?= $(notdir $(CURDIR))
+PKG ?= $(EXEC_NAME).red
+OUT ?= $(PKG)/$(EXEC_NAME).elf
+FS_PATH ?= ../os/fs/redos/user/$(PKG)
+OBJ := $(shell find . -name '*.o')
 
 ifeq ($(ARCH), aarch64-none-elf-)
-	CFLAGS += -nostdlib -ffreestanding 
-else 
-
+	CFLAGS += -nostdlib -ffreestanding
+	# LDFLAGS  := -X-T$(shell ls *.ld)
+else
+	CFLAGS += -I$(INCLUDES)
 endif
 
 .PHONY: dump
 
-all:
-	$(CC) $(LFLAGS) $(CFLAGS) $(shell find . -name '*.c') -I$(STDINC) $(CROSSLIB) ../os/shared/libshared.a -o $(OUT) --verbose
+all: prepare compile
+	echo "Finished build"
+
+prepare:
+	mkdir -p $(PKG)
+	mkdir -p resources
+	cp -r resources $(PKG)
+	#cp package.info $(EXEC_NAME).red
+
+compile: $(OBJ)
+	echo "ARCH = $(ARCH)"
+	$(CC) $(LDFLAGS) $(CFLAGS) $(shell find . -name '*.c') -I$(STDINC) $(CROSSLIB) ../os/shared/libshared.a -o $(OUT)
 	chmod +x $(OUT)
 
 run: all
 ifeq ($(ARCH), aarch64-none-elf-)
-	cp $(OUT) $(FS_PATH)
+	cp -r $(PKG) $(FS_PATH)
 	make -C ../os run
 else
-	./$(OUT)
+	$(OUT)
 endif
 
-clean: 	
+clean:
 	rm $(OUT)
-	rm $(shell find . -name '*.o')
+	rm -r $(EXEC_NAME).red
 
 cross:
-	$(MAKE) ARCH= INCLUDES=../cross CROSSLIB=../cross/crosslib.a
-	./$(OUT)
+	$(MAKE) ARCH= INCLUDES=../redxlib CROSSLIB=../redxlib/redxlib.a
+	gdb -ex run $(OUT)
 
 dump:
 	$(DUMP) -D $(OUT) > dump
