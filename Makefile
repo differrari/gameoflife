@@ -16,6 +16,7 @@ OBJ := $(shell find . -name '*.o')
 ifeq ($(ARCH), aarch64-none-elf-)
 	CFLAGS += -nostdlib -ffreestanding
 	# LDFLAGS  := -X-T$(shell ls *.ld)
+	LDFLAGS := -Wl,-emain
 else
 	CFLAGS += -I$(INCLUDES)
 endif
